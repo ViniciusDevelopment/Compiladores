@@ -5,10 +5,14 @@ function lexer(input) {
   const tokens = [];
   const regex = /\s*(\d+(\.\d*)?|\w+|==|!=|<=|>=|&&|\|\||[+\-*/=(){};,.<>!])/g;
   let match;
+  let isAssignment = false; // Flag para indicar se estamos dentro de uma atribuição
 
   while ((match = regex.exec(input)) !== null) {
     let type = "";
     const value = match[0].trim();
+
+    // console.log("!!!!!!!!!!!");
+    // console.log(value);
 
     // Identifica o tipo do token
     if (/^\d/.test(value)) {
@@ -52,11 +56,38 @@ function lexer(input) {
       type = "IDENTIFIER";
     }
 
-    tokens.push({ type, value });
+    if (value === "=") {
+      isAssignment = true;
+    }
+
+    if (isAssignment) {
+      // Se estamos em uma atribuição, começamos a juntar tokens até o ponto e vírgula
+      let assignmentValue = ""; // Inicializa a string da atribuição
+
+      // Continuamos consumindo tokens até o ponto e vírgula
+      while ((match = regex.exec(input)) !== null) {
+        const nextValue = match[0].trim();
+        // console.log("!!!!!!!!!!!");
+        // console.log(nextValue);
+
+        if (nextValue === ";") {
+          break; // Quando encontrar o ponto e vírgula, para de coletar
+        } else {
+          assignmentValue += " " + nextValue; // Junta os tokens, excluindo '=' e ';'
+        }
+      }
+
+      tokens.push({ type: "ASSIGNMENT", value: assignmentValue.trim() }); // Adiciona o valor da atribuição sem o '=' e o ';'
+      isAssignment = false; // Reseta o estado de atribuição
+    } else {
+      tokens.push({ type, value }); // Adiciona os tokens normalmente
+    }
   }
 
   return tokens;
 }
+
+
 
 // Função para análise sintática (suporta atribuições, if e while)
 function parser(tokens) {
@@ -97,6 +128,7 @@ function parser(tokens) {
 
   function parseExpression() {
     let token = tokens[index++];
+    console.log("#####")
 
     if (token.type === "INTEGER" || token.type === "NUMBER") {
       return token; // Directly return numbers
