@@ -6,6 +6,10 @@ int sum = x + 10;
 int product = x * 2;
 float result = (y / 2) + x - 1.5;
 
+tree arvore = [];
+queue fila = [];
+stack pilha = [];
+
 if (isActive) {
     int z = sum * product;
     bool flag = false;
