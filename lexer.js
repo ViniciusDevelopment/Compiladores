@@ -15,6 +15,8 @@ function lexer(input) {
             type = value.includes('.') ? 'NUMBER' : 'INTEGER';
         } else if (value === 'int' || value === 'float' || value === 'bool' || value === 'string') {
             type = 'KEYWORD';
+        } else if (value === 'tree' || value === 'queue' || value === 'stack') {
+            type = 'DATA_STRUCTURE';  // Reconhece as estruturas de dados
         } else if (value === '=' || value === '+' || value === '-' || value === '*' || value === '/' || value === '<' || value === '>' || value === '==' || value === '!=' || value === '<=' || value === '>=' || value === '&&' || value === '||') {
             type = 'OPERATOR';
         } else if (value === '{' || value === '}' || value === '(' || value === ')') {
@@ -31,7 +33,6 @@ function lexer(input) {
     return tokens;
 }
 
-// Função para análise sintática (suporta atribuições, if e while)
 // Função para análise sintática (suporta atribuições, if e while)
 function parser(tokens) {
   let index = 0;
@@ -91,6 +92,28 @@ function parser(tokens) {
       };
   }
 
+  function parseDataStructure() {
+      const dataType = tokens[index++].value; // Ex: 'tree', 'queue', 'stack'
+      const varName = tokens[index++].value; // Ex: 'arvore', 'fila', 'pilha'
+      let values = [];
+      if (tokens[index].value === '=') {
+          index++; // Avança pelo '='
+          if (tokens[index].value === '[') {
+              index++; // Avança pelo '['
+              while (tokens[index] && tokens[index].value !== ']') {
+                  values.push(parseExpression().value);
+              }
+              index++; // Fecha o ']'
+          }
+      }
+      return {
+          type: 'DataStructure',
+          dataType,
+          varName,
+          values,
+      };
+  }
+
   function parseStatement() {
     if (tokens[index].type === 'KEYWORD') {
         if (tokens[index].value === 'if') {
@@ -100,6 +123,8 @@ function parser(tokens) {
         } else {
             return parseAssignment();
         }
+    } else if (tokens[index].type === 'DATA_STRUCTURE') {
+        return parseDataStructure();  // Adiciona o suporte para as estruturas de dados
     } else {
         index++; // Ignora tokens desconhecidos
     }
@@ -116,7 +141,6 @@ function parser(tokens) {
 
   return parseProgram();
 }
-
 
 // Função para imprimir a árvore de sintaxe
 function printAST(ast) {
@@ -147,7 +171,9 @@ function tokenizeFile(fileName) {
 
 function AST(tokens) {
   const ast = parser(tokens);
-  return printAST(ast);
+  //console.log(JSON.stringify(ast, null, 2))
+  return ast;
 }
 
 module.exports = { lexer, tokenizeFile, AST };
+
