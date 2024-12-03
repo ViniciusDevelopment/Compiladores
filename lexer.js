@@ -99,8 +99,8 @@ function parser(tokens) {
   function parseExpression() {
     let token = tokens[index++];
 
-    console.log("token")
-    console.log(token)
+    // console.log("token");
+    // console.log(token);
 
     // Ignorar palavras-chave de tipo (int, float, bool, string)
     while (token && (token.type === "KEYWORD" && 
@@ -116,10 +116,10 @@ function parser(tokens) {
         token = tokens[index++];
     }
 
-    // Caso de atribuição: 'x = 5'
+    // Caso de atribuição: token 'x = 5'
     if (token.type === "IDENTIFIER" && tokens[index] && tokens[index].value === "=") {
         const identifier = token;
-        const operator = tokens[index++];
+        const operator = tokens[index++]; // Avança após o '='
         const right = parseExpression(); // Parte à direita da atribuição
         return { type: "AssignmentExpression", left: identifier, operator, right };
     }
@@ -145,9 +145,13 @@ function parser(tokens) {
         const right = parseExpression(); // Captura a expressão à direita
         return { type: "BinaryExpression", left, operator, right };
     }
+    else if(token.type === "ASSIGNMENT"){
+      return { type: "Assignment", value: token.value };
+    }
 
     throw new Error("Unrecognized expression: " + (token ? token.value : 'undefined'));
 }
+
 
 
   
@@ -190,7 +194,14 @@ function parser(tokens) {
     const varType = tokens[index++].value; // Ex: 'int'
     const varName = tokens[index++].value; // Ex: 'x'
     const operator = tokens[index++].value; // Ex: '='
+    // console.log("QQQQQ")
+    // console.log("1: "+ varType)
+    // console.log("2: "+ varName)
+    // console.log("3: "+ operator)
     let value = parseExpression(); // Ex: 'x + 10'
+    // console.log("4: "+ value)
+
+
 
     if (tokens[index].value === ";") {
       index++; // Avança o ponto de leitura para o ponto e vírgula
