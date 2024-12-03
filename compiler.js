@@ -1,43 +1,23 @@
 function interpret(ast) {
     const environment = {}; // Ambiente de variáveis
     
-    // Função para avaliar uma expressão
+    // Função para interpretar uma expressão
     function evaluateExpression(expr) {
         if (expr.type === 'NUMBER' || expr.type === 'INTEGER') {
-            return parseFloat(expr.value); // Retorna o valor numérico
+            return parseFloat(expr.value);
         } else if (expr.type === 'IDENTIFIER') {
-            return environment[expr.value]; // Retorna o valor da variável
-        } else if (expr.type === 'OPERATOR') {
-            const left = evaluateExpression(expr.left);
-            const right = evaluateExpression(expr.right);
-            
-            // Avalia operações matemáticas
-            switch (expr.value) {
-                case '+':
-                    return left + right;
-                case '-':
-                    return left - right;
-                case '*':
-                    return left * right;
-                case '/':
-                    return left / right;
-                case '<':
-                    return left < right;
-                default:
-                    throw new Error(`Operador desconhecido: ${expr.value}`);
-            }
+            return environment[expr.value];
         }
     }
 
-    // Função para interpretar uma atribuição
+    // Função para interpretar atribuições
     function interpretAssignment(node) {
-        const value = evaluateExpression(node.value);
-        environment[node.varName] = value; // Atribui o valor calculado à variável
+        environment[node.varName] = evaluateExpression(node.value);
     }
 
     // Função para interpretar estruturas de dados (tree, queue, stack)
     function interpretDataStructure(node) {
-        environment[node.varName] = node.values || []; // Inicializa a estrutura de dados como um array vazio
+        environment[node.varName] = node.values || [];
     }
 
     // Função para interpretar blocos de código
