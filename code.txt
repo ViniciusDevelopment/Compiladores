@@ -1,6 +1,6 @@
 int x = 5;
 float y = 3.14;
-bool isActive = true;
+bool isActive = false;
 string name = "Gabriel";
 int sum = x + 10;
 int product = x * 2;
@@ -10,9 +10,9 @@ tree arvore = [];
 queue fila = [];
 stack pilha = [];
 
-if (isActive) {
+if (x < y) {
     int z = sum * product;
-    bool flag = false;
+    bool flag = x > y;
 }
 
 while (x < 2) {

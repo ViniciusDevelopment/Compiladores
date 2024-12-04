@@ -71,7 +71,7 @@ function lexer(input) {
         while ((match = regex.exec(input)) !== null) {
           const nextValue = match[0].trim();
           if (nextValue === ";") {
-            tokens.push({ type: "ASSIGNMENT", value: assignmentValue.trim() });
+            tokens.push({ type: "Literal", value: assignmentValue.trim() });
             tokens.push({ type: "OPERATOR", value: ";" });
             break;
           } else {
@@ -88,9 +88,6 @@ function lexer(input) {
   return tokens;
 }
 
-
-
-
 // Função para análise sintática (suporta atribuições, if e while)
 function parser(tokens) {
   let index = 0;
@@ -103,58 +100,77 @@ function parser(tokens) {
     // console.log(token);
 
     // Ignorar palavras-chave de tipo (int, float, bool, string)
-    while (token && (token.type === "KEYWORD" && 
-                     (token.value === "int" || token.value === "float" || 
-                      token.value === "bool" || token.value === "string"))) {
-        token = tokens[index++];
+    while (
+      token &&
+      token.type === "KEYWORD" &&
+      (token.value === "int" ||
+        token.value === "float" ||
+        token.value === "bool" ||
+        token.value === "string")
+    ) {
+      token = tokens[index++];
     }
 
     // Ignorar palavras-chave de estruturas de dados (tree, queue, stack)
-    while (token && (token.type === "DATA_STRUCTURE" && 
-                     (token.value === "tree" || token.value === "queue" || 
-                      token.value === "stack"))) {
-        token = tokens[index++];
+    while (
+      token &&
+      token.type === "DATA_STRUCTURE" &&
+      (token.value === "tree" ||
+        token.value === "queue" ||
+        token.value === "stack")
+    ) {
+      token = tokens[index++];
     }
 
     // Caso de atribuição: token 'x = 5'
-    if (token.type === "IDENTIFIER" && tokens[index] && tokens[index].value === "=") {
-        const identifier = token;
-        const operator = tokens[index++]; // Avança após o '='
-        const right = parseExpression(); // Parte à direita da atribuição
-        return { type: "AssignmentExpression", left: identifier, operator, right };
+    if (
+      token.type === "IDENTIFIER" &&
+      tokens[index] &&
+      tokens[index].value === "="
+    ) {
+      const identifier = token;
+      const operator = tokens[index++]; // Avança após o '='
+      const right = parseExpression(); // Parte à direita da atribuição
+      return {
+        type: "AssignmentExpression",
+        left: identifier,
+        operator,
+        right,
+      };
     }
 
     // Verifica se o token é um número ou identificador
-    if (token.type === "INTEGER" || token.type === "NUMBER") {
-        return { type: "Literal", value: token.value }; // Retorna diretamente números
+    if (
+      token.type === "INTEGER" ||
+      token.type === "NUMBER" ||
+      token.type === "Literal"
+    ) {
+      return { type: "Literal", value: token.value }; // Retorna diretamente números
     } else if (token.type === "IDENTIFIER") {
-        return { type: "Identifier", name: token.value }; // Retorna diretamente identificadores
+      return { type: "Identifier", name: token.value }; // Retorna diretamente identificadores
     } else if (token.value === "(") {
-        // Lida com expressões entre parênteses
-        const expr = parseExpression(); 
-        if (tokens[index] && tokens[index].value === ")") {
-            index++; // Avança após ')'
-        } else {
-            throw new Error("Expected closing parenthesis ')'");
-        }
-        return expr;
+      // Lida com expressões entre parênteses
+      const expr = parseExpression();
+      if (tokens[index] && tokens[index].value === ")") {
+        index++; // Avança após ')'
+      } else {
+        throw new Error("Expected closing parenthesis ')'");
+      }
+      return expr;
     } else if (token.type === "OPERATOR") {
-        // Se encontrar um operador, tenta formar uma expressão binária
-        const left = parseExpression(); // Captura a expressão à esquerda
-        const operator = token;         // O operador
-        const right = parseExpression(); // Captura a expressão à direita
-        return { type: "BinaryExpression", left, operator, right };
-    }
-    else if(token.type === "ASSIGNMENT"){
+      // Se encontrar um operador, tenta formar uma expressão binária
+      const left = parseExpression(); // Captura a expressão à esquerda
+      const operator = token; // O operador
+      const right = parseExpression(); // Captura a expressão à direita
+      return { type: "BinaryExpression", left, operator, right };
+    } else if (token.type === "ASSIGNMENT") {
       return { type: "Assignment", value: token.value };
     }
 
-    throw new Error("Unrecognized expression: " + (token ? token.value : 'undefined'));
-}
-
-
-
-  
+    throw new Error(
+      "Unrecognized expression: " + (token ? token.value : "undefined")
+    );
+  }
 
   function parseBlock() {
     const block = [];
@@ -201,8 +217,6 @@ function parser(tokens) {
     let value = parseExpression(); // Ex: 'x + 10'
     // console.log("4: "+ value)
 
-
-
     if (tokens[index].value === ";") {
       index++; // Avança o ponto de leitura para o ponto e vírgula
     }
@@ -237,7 +251,6 @@ function parser(tokens) {
       values,
     };
   }
-  
 
   function parseStatement() {
     if (tokens[index].type === "KEYWORD") {
