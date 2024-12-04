@@ -27,7 +27,6 @@ function lexer(input) {
         } else if (char === "}") {
           console.log(depth);
           if (depth === 0) {
-            console.log("dvdsv");
             // Encontramos o fechamento correto do bloco js{}
             jsCode = input.slice(start + 3, i).trim();
             break;
@@ -361,7 +360,6 @@ function tokenizeFile(fileName) {
 }
 
 function AST(tokens) {
-  console.log("fffffffffffffff");
   const ast = parser(tokens);
   return ast;
 }

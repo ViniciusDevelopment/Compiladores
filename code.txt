@@ -10,29 +10,27 @@ tree arvore = [];
 queue fila = [];
 stack pilha = [];
 
+pilha.push(10);
+fila.push(20);  
+
+pilha.pop();
+fila.pop(); 
+
 while (x <10) {
     int c = 0;
     int x = x + 1;
-    
- 
-
-  
 }
 
 
 if (x < y) {
     int z = sum * product;
     bool flag = (x < y);
-    
 }
 
 js{
-  let x = 0
-while (x< 3){
-    console.log("vBB")
-    x++
-  
-    
-}
-
+    let x = 0
+    while (x< 3){
+        console.log("vBB")
+        x++
+    }
 }
