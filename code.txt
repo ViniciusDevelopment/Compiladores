@@ -10,12 +10,19 @@ tree arvore = [];
 queue fila = [];
 stack pilha = [];
 
+while (x <10) {
+    int c = 0;
+    int x = x + 1;
+    
+ 
+
+  
+}
+
+
 if (x < y) {
     int z = sum * product;
     bool flag = (x < y);
+    
 }
 
-while (x < 2) {
-    int c = 0;
-    c++;
-}

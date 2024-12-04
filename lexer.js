@@ -144,20 +144,18 @@ function parser(tokens) {
     ) {
       return { type: "Literal", value: token.value }; // Retorna diretamente números
     } else if (token.value === "(") {
-      const expr = parseExpression(); // Analisa a expressão dentro dos parênteses
-      const identifier = token;
+      const expr = parseExpression(); // Analisa a expressão dentro dos parêntese
       const operator = tokens[index].value;
       const right = tokens[index + 1].value;
-      const condition = expr.value + operator + right;
-      const left = expr.value;
+      const value = expr.value + operator + right;
+
       // Lida com expressões entre parênteses
       if (tokens[index] && tokens[index + 2].value === ")") {
-        index++; // Avança após ')'
+        index = index + 3; // Avança após ')'
       } else {
         throw new Error("Expected closing parenthesis ')'");
       }
-      return { type: "xpression", condition };
-      return { type: "BinaryExpression", left, operator, right };
+      return { type: "Expression", value };
     } else if (token.type === "OPERATOR") {
       // Se encontrar um operador, tenta formar uma expressão binária
       const left = parseExpression(); // Captura a expressão à esquerda
@@ -177,6 +175,7 @@ function parser(tokens) {
 
   function parseBlock() {
     const block = [];
+
     if (tokens[index].value === "{") {
       index++; // Avança para dentro do bloco
       while (tokens[index] && tokens[index].value !== "}") {
@@ -192,7 +191,6 @@ function parser(tokens) {
     index++;
     const condition = parseExpression(); // Condição do if
 
-    console.log(condition);
     const body = parseBlock();
     return {
       type: "IfStatement",
@@ -205,6 +203,7 @@ function parser(tokens) {
     index++; // Avança pelo 'while'
     const condition = parseExpression(); // Condição do while
     const body = parseBlock();
+    console.log(body);
     return {
       type: "WhileStatement",
       condition,

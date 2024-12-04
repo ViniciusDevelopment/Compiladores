@@ -5,12 +5,9 @@ function interpret(ast) {
   function evaluateExpression(expr) {
     console.log("Evaluating expression:", expr);
     if (/[+\-*/<>!=]/.test(expr.value)) {
-      /[\'\"]/g.test(expr.value)
-        ? (expr.type = "BinaryExpression")
-        : (expr.type = "Expression");
-    } else if (/[<>!=]/.test(expr.value)) {
-      expr.type = "BinaryExpression";
+      expr.type = "Expression";
     }
+
     if (expr.type === "Literal") {
       // Caso a expressão seja um valor literal, retornamos o valor numérico ou booleano
       if (expr.value === "true") return true;
@@ -21,42 +18,6 @@ function interpret(ast) {
     } else if (expr.type === "Identifier") {
       // Caso seja um identificador (variável), retornamos o valor da variável no ambiente
       return environment[expr.value];
-    } else if (expr.type === "BinaryExpression") {
-      // Se for uma expressão binária (ex: x + 10)
-
-      const left = expr.left;
-      const right = expr.right;
-
-      switch (expr.operator) {
-        case "+":
-          return left + right;
-        case "-":
-          return left - right;
-        case "*":
-          return left * right;
-        case "/":
-          return left / right;
-        case "<":
-          console.log("pasoouu");
-          return left < right;
-        case ">":
-          console.log("pasoouu");
-          return left > right;
-        case "<=":
-          return left <= right;
-        case ">=":
-          return left >= right;
-        case "==":
-          return left == right;
-        case "!=":
-          return left != right;
-        case "&&":
-          return left && right;
-        case "||":
-          return left || right;
-        default:
-          throw new Error(`Operador desconhecido: ${expr.operator}`);
-      }
     } else if (expr.type === "Expression") {
       // Caso seja uma expressão de string (ex: 'x + 10')
       const expression = expr.value;
@@ -117,7 +78,11 @@ function interpret(ast) {
 
   // Função para interpretar instruções while
   function interpretWhile(statement) {
+    console.log("-------------");
+    console.log(statement);
+    console.log("-------------");
     while (evaluateExpression(statement.condition)) {
+      console.log("TETGGGGS");
       interpretBlock(statement.body);
     }
   }
