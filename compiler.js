@@ -1,8 +1,15 @@
 function interpret(ast) {
   const environment = {}; // Ambiente de variáveis
 
-  // Função para avaliar uma expressão
+  // Função para avaliar uma expressãvo
   function evaluateExpression(expr) {
+    if (expr.type === "JavaScriptCode") {
+      try {
+        return eval(expr.value); // Nota: `eval` deve ser usado com cuidado!
+      } catch (error) {
+        throw new Error(`Erro ao executar código JS: ${expr.value}`);
+      }
+    }
     console.log("Evaluating expression:", expr);
     if (/[+\-*/<>!=]/.test(expr.value)) {
       expr.type = "Expression";
@@ -68,9 +75,6 @@ function interpret(ast) {
 
   // Função para interpretar instruções if
   function interpretIf(statement) {
-    console.log("-------------");
-    console.log(statement);
-    console.log("-------------");
     if (evaluateExpression(statement.condition)) {
       interpretBlock(statement.body);
     }
@@ -78,18 +82,16 @@ function interpret(ast) {
 
   // Função para interpretar instruções while
   function interpretWhile(statement) {
-    console.log("-------------");
-    console.log(statement);
-    console.log("-------------");
     while (evaluateExpression(statement.condition)) {
-      console.log("TETGGGGS");
       interpretBlock(statement.body);
     }
   }
 
   // Interpreta o programa (AST)
   ast.forEach((node) => {
-    if (node.type === "Assignment") {
+    if (node.type === "JavaScriptCode") {
+      evaluateExpression(node);
+    } else if (node.type === "Assignment") {
       interpretAssignment(node);
     } else if (node.type === "DataStructure") {
       interpretDataStructure(node);

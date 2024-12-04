@@ -3,7 +3,9 @@ const fs = require("fs");
 // Função para realizar a análise léxica (tokenização)
 function lexer(input) {
   const tokens = [];
-  const regex = /\s*(\d+(\.\d*)?|\w+|==|!=|<=|>=|&&|\|\||[+\-*/=(){};,.<>!])/g;
+  const regex =
+    /\s*(js{.*?}|[{}]|\d+(\.\d*)?|\w+|==|!=|<=|>=|&&|\|\||[+\-*/=();,.<>!])/gs;
+
   let match;
   let isAssignment = false; // Flag para indicar se estamos dentro de uma atribuição
 
@@ -11,8 +13,35 @@ function lexer(input) {
     let type = "";
     const value = match[0].trim();
 
-    // Identifica o tipo do token
-    if (/^\d/.test(value)) {
+    if (value.startsWith("js{") && value.endsWith("}")) {
+      let start = match.index + 3;
+      let jsCode = "";
+      let depth = 0;
+
+      // Itera através do conteúdo para capturar o código JS corretamente
+      for (let i = start + 3; i < input.length; i++) {
+        let char = input[i];
+
+        if (char === "{") {
+          depth++;
+        } else if (char === "}") {
+          console.log(depth);
+          if (depth === 0) {
+            console.log("dvdsv");
+            // Encontramos o fechamento correto do bloco js{}
+            jsCode = input.slice(start + 3, i).trim();
+            break;
+          } else {
+            depth--;
+          }
+        }
+      }
+
+      // Se encontramos o fechamento correto, adicionamos o token
+      if (jsCode) {
+        tokens.push({ type: "JS_CODE", value: jsCode });
+      }
+    } else if (/^\d/.test(value)) {
       type = value.includes(".") ? "NUMBER" : "INTEGER";
     } else if (
       value === "int" ||
@@ -80,7 +109,9 @@ function lexer(input) {
         }
         isAssignment = false; // Finaliza a atribuição
       } else {
-        tokens.push({ type, value }); // Adiciona os tokens normalmente
+        if (type != "") {
+          tokens.push({ type, value }); // Adiciona os tokens normalmente
+        }
       }
     }
   }
@@ -119,6 +150,13 @@ function parser(tokens) {
       token = tokens[index++];
     }
 
+    if (token.type === "JS_CODE") {
+      // Retorna um nó de JavaScript para a árvore de sintaxe abstrata (AST)
+      return {
+        type: "JavaScriptCode",
+        value: token.value, // Código JS literal
+      };
+    }
     // Caso de atribuição: token 'x = 5'
     if (
       token.type === "IDENTIFIER" &&
@@ -144,7 +182,7 @@ function parser(tokens) {
     ) {
       return { type: "Literal", value: token.value }; // Retorna diretamente números
     } else if (token.value === "(") {
-      const expr = parseExpression(); // Analisa a expressão dentro dos parêntese
+      const expr = parseExpression();
       const operator = tokens[index].value;
       const right = tokens[index + 1].value;
       const value = expr.value + operator + right;
@@ -203,7 +241,7 @@ function parser(tokens) {
     index++; // Avança pelo 'while'
     const condition = parseExpression(); // Condição do while
     const body = parseBlock();
-    console.log(body);
+
     return {
       type: "WhileStatement",
       condition,
@@ -256,9 +294,14 @@ function parser(tokens) {
       values,
     };
   }
+  function parsejs() {
+    return parseExpression();
+  }
 
   function parseStatement() {
-    if (tokens[index].type === "KEYWORD") {
+    if (tokens[index].type === "JS_CODE") {
+      return parsejs();
+    } else if (tokens[index].type === "KEYWORD") {
       if (tokens[index].value === "if") {
         return parseIfStatement();
       } else if (tokens[index].value === "while") {

@@ -26,3 +26,13 @@ if (x < y) {
     
 }
 
+js{
+  let x = 0
+while (x< 3){
+    console.log("vBB")
+    x++
+  
+    
+}
+
+}
