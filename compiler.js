@@ -8,6 +8,8 @@ function interpret(ast) {
       /[\'\"]/g.test(expr.value)
         ? (expr.type = "BinaryExpression")
         : (expr.type = "Expression");
+    } else if (/[<>!=]/.test(expr.value)) {
+      expr.type = "BinaryExpression";
     }
     if (expr.type === "Literal") {
       // Caso a expressão seja um valor literal, retornamos o valor numérico ou booleano
@@ -21,8 +23,10 @@ function interpret(ast) {
       return environment[expr.value];
     } else if (expr.type === "BinaryExpression") {
       // Se for uma expressão binária (ex: x + 10)
-      const left = evaluateExpression(expr.left);
-      const right = evaluateExpression(expr.right);
+
+      const left = expr.left;
+      const right = expr.right;
+
       switch (expr.operator) {
         case "+":
           return left + right;
@@ -33,8 +37,10 @@ function interpret(ast) {
         case "/":
           return left / right;
         case "<":
+          console.log("pasoouu");
           return left < right;
         case ">":
+          console.log("pasoouu");
           return left > right;
         case "<=":
           return left <= right;
@@ -101,6 +107,9 @@ function interpret(ast) {
 
   // Função para interpretar instruções if
   function interpretIf(statement) {
+    console.log("-------------");
+    console.log(statement);
+    console.log("-------------");
     if (evaluateExpression(statement.condition)) {
       interpretBlock(statement.body);
     }

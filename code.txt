@@ -12,7 +12,7 @@ stack pilha = [];
 
 if (x < y) {
     int z = sum * product;
-    bool flag = x > y;
+    bool flag = (x < y);
 }
 
 while (x < 2) {

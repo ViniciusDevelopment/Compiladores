@@ -96,9 +96,6 @@ function parser(tokens) {
   function parseExpression() {
     let token = tokens[index++];
 
-    // console.log("token");
-    // console.log(token);
-
     // Ignorar palavras-chave de tipo (int, float, bool, string)
     while (
       token &&
@@ -146,17 +143,21 @@ function parser(tokens) {
       token.type === "Literal"
     ) {
       return { type: "Literal", value: token.value }; // Retorna diretamente números
-    } else if (token.type === "IDENTIFIER") {
-      return { type: "Identifier", name: token.value }; // Retorna diretamente identificadores
     } else if (token.value === "(") {
+      const expr = parseExpression(); // Analisa a expressão dentro dos parênteses
+      const identifier = token;
+      const operator = tokens[index].value;
+      const right = tokens[index + 1].value;
+      const condition = expr.value + operator + right;
+      const left = expr.value;
       // Lida com expressões entre parênteses
-      const expr = parseExpression();
-      if (tokens[index] && tokens[index].value === ")") {
+      if (tokens[index] && tokens[index + 2].value === ")") {
         index++; // Avança após ')'
       } else {
         throw new Error("Expected closing parenthesis ')'");
       }
-      return expr;
+      return { type: "xpression", condition };
+      return { type: "BinaryExpression", left, operator, right };
     } else if (token.type === "OPERATOR") {
       // Se encontrar um operador, tenta formar uma expressão binária
       const left = parseExpression(); // Captura a expressão à esquerda
@@ -165,6 +166,8 @@ function parser(tokens) {
       return { type: "BinaryExpression", left, operator, right };
     } else if (token.type === "ASSIGNMENT") {
       return { type: "Assignment", value: token.value };
+    } else if (token.type === "IDENTIFIER") {
+      return { type: "IDENTIFIER", value: token.value }; // Retorna diretamente identificadores
     }
 
     throw new Error(
@@ -185,8 +188,11 @@ function parser(tokens) {
   }
 
   function parseIfStatement() {
-    index++; // Avança pelo 'if'
+    // Avança pelo 'if'
+    index++;
     const condition = parseExpression(); // Condição do if
+
+    console.log(condition);
     const body = parseBlock();
     return {
       type: "IfStatement",
