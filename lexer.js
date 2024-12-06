@@ -52,6 +52,8 @@ function lexer(input) {
       type = "DATA_STRUCTURE";
     } else if (value === "enqueue" || value === "dequeue") {
       type = "QueueOperation";
+    } else if (value === "enstack" || value === "destack") {
+      type = "stackOperation";
     } else if (
       value === "=" ||
       value === "+" ||
@@ -289,6 +291,26 @@ function parser(tokens) {
     }
     throw new Error(`Operação desconhecida para fila: ${operation}`);
   }
+  function parseStackOperation(varName) {
+    const operation = tokens[index++].value; // Pega a operação, ex: "enqueue" ou "dequeue"
+    if (operation === "enstack") {
+      index++;
+      const value = parseExpression(); // Pega o valor a ser enfileirado
+      return {
+        type: "stackOperation",
+        operation: "enstack",
+        target: varName,
+        value,
+      };
+    } else if (operation === "destack") {
+      return {
+        type: "stackOperation",
+        operation: "destack",
+        target: varName,
+      };
+    }
+    throw new Error(`Operação desconhecida para fila: ${operation}`);
+  }
 
   function parseDataStructure() {
     const dataType = tokens[index++].value;
@@ -332,6 +354,8 @@ function parser(tokens) {
       return parseDataStructure();
     } else if (tokens[index].type === "QueueOperation") {
       return parseQueueOperation(tokens[index - 2].value);
+    } else if (tokens[index].type === "stackOperation") {
+      return parseStackOperation(tokens[index - 2].value);
     } else if (
       tokens[index].type === "PUNCTUATION" &&
       tokens[index].value === ";"

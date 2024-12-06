@@ -33,3 +33,6 @@ queue fila1 = [1, 2, 3];
 fila1.enqueue(4);
 fila1.enqueue(5);
 fila1.dequeue();
+stack pilha = [1,2,3];
+pilha.destack
+pilha.enstack(7);

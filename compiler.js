@@ -7,12 +7,18 @@ function interpret(ast) {
       data: values || [],
     };
   }
+  function initializeStack(name, values) {
+    environment[name] = {
+      type: "stack",
+      data: values || [],
+    };
+  }
 
   function executeQueueOperation(op) {
     const queue = environment[op.target];
 
     if (!queue || queue.type !== "queue") {
-      throw new Error(`Fila "${op.target}" não encontrada ou não é uma fila.`);
+      throw new Error(`fila "${op.target}" não encontrada ou não é uma fila.`);
     }
     if (op.operation === "enqueue") {
       const value = evaluateExpression(op.value);
@@ -26,6 +32,26 @@ function interpret(ast) {
     }
     return;
   }
+  function executeStackOperation(op) {
+    const stack = environment[op.target];
+    console.log(op.target);
+    if (!stack || stack.type !== "stack") {
+      throw new Error(
+        `pilha "${op.target}" não encontrada ou não é uma pilha.`
+      );
+    }
+    if (op.operation === "enstack") {
+      const value = evaluateExpression(op.value);
+
+      stack.data.push(value);
+    } else if (op.operation === "destack") {
+      if (stack.data.length === 0) {
+        throw new Error(`Fila "${op.target}" está vazia.`);
+      }
+      stack.data.pop();
+    }
+    return;
+  }
 
   function evaluateExpression(expr) {
     if (expr.type === "Literal") {
@@ -36,8 +62,12 @@ function interpret(ast) {
   for (const node of ast) {
     if (node.type === "DataStructure" && node.dataType === "queue") {
       initializeQueue(node.varName, node.values);
+    } else if (node.type === "DataStructure" && node.dataType === "stack") {
+      initializeStack(node.varName, node.values);
     } else if (node.type === "QueueOperation") {
       executeQueueOperation(node);
+    } else if (node.type === "stackOperation") {
+      executeStackOperation(node);
     }
   }
 
