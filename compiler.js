@@ -1,7 +1,46 @@
 function interpret(ast) {
-  const environment = {}; // Ambiente de variáveis
+  const environment = {};
 
-  // Função para avaliar uma expressãvo
+  function initializeQueue(name, values) {
+    environment[name] = {
+      type: "queue",
+      data: values || [],
+    };
+  }
+
+  function executeQueueOperation(op) {
+    const queue = environment[op.target];
+
+    if (!queue || queue.type !== "queue") {
+      throw new Error(`Fila "${op.target}" não encontrada ou não é uma fila.`);
+    }
+    if (op.operation === "enqueue") {
+      const value = evaluateExpression(op.value);
+
+      queue.data.push(value);
+    } else if (op.operation === "dequeue") {
+      if (queue.data.length === 0) {
+        throw new Error(`Fila "${op.target}" está vazia.`);
+      }
+      queue.data.shift();
+    }
+    return;
+  }
+
+  function evaluateExpression(expr) {
+    if (expr.type === "Literal") {
+      return expr.value;
+    }
+  }
+
+  for (const node of ast) {
+    if (node.type === "DataStructure" && node.dataType === "queue") {
+      initializeQueue(node.varName, node.values);
+    } else if (node.type === "QueueOperation") {
+      executeQueueOperation(node);
+    }
+  }
+
   function evaluateExpression(expr) {
     if (expr.type === "JavaScriptCode") {
       try {
@@ -10,7 +49,7 @@ function interpret(ast) {
         throw new Error(`Erro ao executar código JS: ${expr.value}`);
       }
     }
-    console.log("Evaluating expression:", expr);
+    //console.log("Evaluating expression:", expr);
     if (/[+\-*/<>!=]/.test(expr.value)) {
       expr.type = "Expression";
     }

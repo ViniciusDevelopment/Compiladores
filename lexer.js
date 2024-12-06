@@ -25,7 +25,6 @@ function lexer(input) {
         if (char === "{") {
           depth++;
         } else if (char === "}") {
-          console.log(depth);
           if (depth === 0) {
             // Encontramos o fechamento correto do bloco js{}
             jsCode = input.slice(start + 3, i).trim();
@@ -50,7 +49,9 @@ function lexer(input) {
     ) {
       type = "KEYWORD";
     } else if (value === "tree" || value === "queue" || value === "stack") {
-      type = "DATA_STRUCTURE"; // Reconhece as estruturas de dados
+      type = "DATA_STRUCTURE";
+    } else if (value === "enqueue" || value === "dequeue") {
+      type = "QueueOperation";
     } else if (
       value === "=" ||
       value === "+" ||
@@ -139,6 +140,7 @@ function parser(tokens) {
     }
 
     // Ignorar palavras-chave de estruturas de dados (tree, queue, stack)
+
     while (
       token &&
       token.type === "DATA_STRUCTURE" &&
@@ -252,12 +254,7 @@ function parser(tokens) {
     const varType = tokens[index++].value; // Ex: 'int'
     const varName = tokens[index++].value; // Ex: 'x'
     const operator = tokens[index++].value; // Ex: '='
-    // console.log("QQQQQ")
-    // console.log("1: "+ varType)
-    // console.log("2: "+ varName)
-    // console.log("3: "+ operator)
     let value = parseExpression(); // Ex: 'x + 10'
-    // console.log("4: "+ value)
 
     if (tokens[index].value === ";") {
       index++; // Avança o ponto de leitura para o ponto e vírgula
@@ -272,27 +269,50 @@ function parser(tokens) {
     };
   }
 
-  function parseDataStructure() {
-    const dataType = tokens[index++].value; // Ex: 'tree', 'queue', 'stack'
-    const varName = tokens[index++].value; // Ex: 'arvore', 'fila', 'pilha'
-    let values = [];
-    if (tokens[index].value === "=") {
-      index++; // Avança pelo '='
-      if (tokens[index].value === "[") {
-        index++; // Avança pelo '['
-        while (tokens[index] && tokens[index].value !== "]") {
-          values.push(parseExpression().value);
-        }
-        index++; // Fecha o ']'
-      }
+  function parseQueueOperation(varName) {
+    const operation = tokens[index++].value; // Pega a operação, ex: "enqueue" ou "dequeue"
+    if (operation === "enqueue") {
+      index++;
+      const value = parseExpression(); // Pega o valor a ser enfileirado
+      return {
+        type: "QueueOperation",
+        operation: "enqueue",
+        target: varName,
+        value,
+      };
+    } else if (operation === "dequeue") {
+      return {
+        type: "QueueOperation",
+        operation: "dequeue",
+        target: varName,
+      };
     }
+    throw new Error(`Operação desconhecida para fila: ${operation}`);
+  }
+
+  function parseDataStructure() {
+    const dataType = tokens[index++].value;
+    const varName = tokens[index++].value;
+    let values = [];
+    let data;
+    if (tokens[index]?.value === "=") {
+      index++;
+
+      values.push(tokens[index++].value);
+      data = values[0]
+        .split(",")
+        .map((num) => num.trim())
+        .map(Number);
+    }
+
     return {
       type: "DataStructure",
       dataType,
       varName,
-      values,
+      values: data,
     };
   }
+
   function parsejs() {
     return parseExpression();
   }
@@ -309,7 +329,9 @@ function parser(tokens) {
         return parseAssignment();
       }
     } else if (tokens[index].type === "DATA_STRUCTURE") {
-      return parseDataStructure(); // Adiciona o suporte para as estruturas de dados
+      return parseDataStructure();
+    } else if (tokens[index].type === "QueueOperation") {
+      return parseQueueOperation(tokens[index - 2].value);
     } else if (
       tokens[index].type === "PUNCTUATION" &&
       tokens[index].value === ";"
@@ -360,6 +382,7 @@ function tokenizeFile(fileName) {
 }
 
 function AST(tokens) {
+  console.log("fffffffffffffff");
   const ast = parser(tokens);
   return ast;
 }

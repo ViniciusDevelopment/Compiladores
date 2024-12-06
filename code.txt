@@ -6,31 +6,30 @@ int sum = x + 10;
 int product = x * 2;
 float result = (y / 2) + x - 1.5;
 
-tree arvore = [];
-queue fila = [];
-stack pilha = [];
 
-pilha.push(10);
-fila.push(20);  
-
-pilha.pop();
-fila.pop(); 
 
 while (x <10) {
     int c = 0;
     int x = x + 1;
+    
+ 
+
+  
 }
 
 
-if (x < y) {
+if (x >y) {
     int z = sum * product;
     bool flag = (x < y);
+    
 }
 
 js{
-    let x = 0
-    while (x< 3){
-        console.log("vBB")
-        x++
-    }
+
+
 }
+
+queue fila1 = [1, 2, 3];
+fila1.enqueue(4);
+fila1.enqueue(5);
+fila1.dequeue();
