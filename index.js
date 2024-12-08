@@ -1,3 +1,6 @@
+//Dupla: Gabriel e Vinícius
+
+
 const { ErrosFile } = require('./semantico');
 const { tokenizeFile } = require('./lexico');
 const { AST } = require('./sintatico');
