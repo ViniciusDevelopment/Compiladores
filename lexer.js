@@ -50,9 +50,11 @@ function lexer(input) {
       type = "KEYWORD";
     } else if (value === "tree" || value === "queue" || value === "stack") {
       type = "DATA_STRUCTURE";
+    } else if (value === "addNode") {
+      type = "TreeOperation";
     } else if (value === "enqueue" || value === "dequeue") {
       type = "QueueOperation";
-    } else if (value === "enstack" || value === "destack") {
+    }else if (value === "enstack" || value === "destack") {
       type = "stackOperation";
     } else if (
       value === "=" ||
@@ -151,6 +153,26 @@ function parser(tokens) {
         token.value === "stack")
     ) {
       token = tokens[index++];
+    }
+
+    if (token.type === "IDENTIFIER" && tokens[index] && tokens[index].value === '.') {
+      const treeName = token.value;  // Ex: "arvore"
+      index++;  // Avança para o próximo token (o ".")
+      const operation = tokens[index++].value;  // Ex: "addNode"
+      if (operation === "addNode") {
+        // Avança até os parâmetros do addNode
+        const nodeValue1 = parseExpression();  // Ex: 10
+        const nodeValue2 = parseExpression();  // Ex: 20
+        if (tokens[index].value === ";") {
+          index++; // Avança após o ponto e vírgula
+        }
+        return {
+          type: "TreeOperation",
+          operation: "addNode",
+          tree: treeName,
+          values: [nodeValue1, nodeValue2],
+        };
+      }
     }
 
     if (token.type === "JS_CODE") {
@@ -271,6 +293,37 @@ function parser(tokens) {
     };
   }
 
+  function parseTreeOperation(varName) {
+    const operation = tokens[index++].value; // Pega a operação, ex: "addNode"
+    if (operation === "addNode") {
+      index++; // Avança após "addNode"
+      const values = []; // Array para armazenar os valores dos nós
+  
+      // Continua pegando valores até encontrar um ponto e vírgula
+      while (tokens[index] && tokens[index].value !== ";") {
+        const value = parseExpression(); // Pega o valor do nó
+        values.push(value); // Adiciona o valor ao array
+        if (tokens[index] && tokens[index].value === ",") {
+          index++; // Avança após a vírgula
+        }
+      }
+  
+      if (tokens[index] && tokens[index].value === ";") {
+        index++; // Avança após o ponto e vírgula
+      }
+  
+      return {
+        type: "TreeOperation",
+        operation: "addNode",
+        target: varName,
+        values, // Retorna todos os valores capturados
+      };
+
+    }
+    throw new Error(`Operação desconhecida para árvore: ${operation}`);
+  }
+  
+
   function parseQueueOperation(varName) {
     const operation = tokens[index++].value; // Pega a operação, ex: "enqueue" ou "dequeue"
     if (operation === "enqueue") {
@@ -354,6 +407,8 @@ function parser(tokens) {
       return parseDataStructure();
     } else if (tokens[index].type === "QueueOperation") {
       return parseQueueOperation(tokens[index - 2].value);
+    } else if (tokens[index].type === "TreeOperation") {
+      return parseTreeOperation(tokens[index - 2].value);
     } else if (tokens[index].type === "stackOperation") {
       return parseStackOperation(tokens[index - 2].value);
     } else if (
@@ -406,7 +461,6 @@ function tokenizeFile(fileName) {
 }
 
 function AST(tokens) {
-  console.log("fffffffffffffff");
   const ast = parser(tokens);
   return ast;
 }

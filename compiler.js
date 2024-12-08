@@ -1,6 +1,15 @@
 function interpret(ast) {
   const environment = {};
 
+  function initializeTree(name, values) {
+    // Inicializa a árvore com o nó raiz
+    environment[name] = {
+      type: "tree",
+      data: { value: parseFloat(values[0]), children: [] }
+    };
+  }
+  
+
   function initializeQueue(name, values) {
     environment[name] = {
       type: "queue",
@@ -14,6 +23,46 @@ function interpret(ast) {
     };
   }
 
+  function executeTreeOperation(op) {
+    let tree = environment[op.target];
+  
+    if (!tree || tree.type !== "tree") {
+      throw new Error(`Árvore "${op.target}" não encontrada ou não é uma árvore.`);
+    }
+  
+    if (op.operation === "addNode") {
+      const parentValue = parseFloat(op.values[0].value);
+      const newValue = parseFloat(op.values[1].value);
+  
+      function addNodeToTree(node, parentValue, newValue) {
+        if (node.value === parentValue) {
+          if (!node.children) {
+            node.children = [];
+          }
+          node.children.push({ value: newValue, children: [] });
+          return true;
+        }
+  
+        if (node.children) {
+          for (let child of node.children) {
+            if (addNodeToTree(child, parentValue, newValue)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+  
+      if (!addNodeToTree(tree.data, parentValue, newValue)) {
+        throw new Error(`Nó pai "${parentValue}" não encontrado.`);
+      }
+    }
+    console.log("Árvore após a operação:", JSON.stringify(tree, null, 2));
+
+    environment[op.target] = tree; // Atualiza a árvore no ambiente
+    return;
+  }
+  
   function executeQueueOperation(op) {
     const queue = environment[op.target];
 
@@ -34,7 +83,6 @@ function interpret(ast) {
   }
   function executeStackOperation(op) {
     const stack = environment[op.target];
-    console.log(op.target);
     if (!stack || stack.type !== "stack") {
       throw new Error(
         `pilha "${op.target}" não encontrada ou não é uma pilha.`
@@ -64,6 +112,10 @@ function interpret(ast) {
       initializeQueue(node.varName, node.values);
     } else if (node.type === "DataStructure" && node.dataType === "stack") {
       initializeStack(node.varName, node.values);
+    }else if (node.type === "DataStructure" && node.dataType === "tree") {
+      initializeTree(node.varName, node.values);
+    } else if (node.type === "TreeOperation") {
+      executeTreeOperation(node);
     } else if (node.type === "QueueOperation") {
       executeQueueOperation(node);
     } else if (node.type === "stackOperation") {

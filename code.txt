@@ -1,5 +1,5 @@
 int x = 5;
-float y = 3.14;
+float y = 8;
 bool isActive = false;
 string name = "Gabriel";
 int sum = x + 10;
@@ -11,23 +11,23 @@ float result = (y / 2) + x - 1.5;
 while (x <10) {
     int c = 0;
     int x = x + 1;
-    
- 
-
-  
 }
 
 
 if (x >y) {
     int z = sum * product;
     bool flag = (x < y);
-    
 }
 
 js{
 
 
 }
+
+tree arvore = [10];
+arvore.addNode(10, 20);
+arvore.addNode(10, 30);
+arvore.addNode(20, 40);
 
 queue fila1 = [1, 2, 3];
 fila1.enqueue(4);
