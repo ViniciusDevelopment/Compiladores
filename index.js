@@ -1,9 +1,13 @@
-const { tokenizeFile, AST } = require('./lexer');
+const { ErrosFile } = require('./semantico');
+const { tokenizeFile } = require('./lexico');
+const { AST } = require('./sintatico');
 const { interpret } = require('./compiler');  // Supondo que o código de interpretação esteja em 'interpreter.js'
 
 const fileName = 'code.txt'; // Certifique-se de que o arquivo code.txt está na mesma pasta
 
 try {
+  const escrita = ErrosFile(fileName);
+  console.log('escrita:', escrita);
   const tokens = tokenizeFile(fileName);
   console.log('Tokens:', tokens);
   const ast = AST(tokens);
